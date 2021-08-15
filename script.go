@@ -4,12 +4,15 @@ import(
         "fmt"
         "runtime"
         "os"
+        "os/exec"
         "math/rand"
         "time"
+        "path"
 )
 
 var cmdLine_prefix string
 var isLinux bool
+var whitediff bool
 
 func OSReadDir(root string) ([]string, error) {
         var files []string
@@ -40,12 +43,11 @@ func checkOS(){
         }
 }
 
-func init(){
+func initial(){
         var(
                 err error
         )
         checkOS()
-        fmt.Printf("%s" , os.Args)
         err =  os.Chdir(os.Args[1])
         if err != nil{
             fmt.Printf("Directory cannot find")
@@ -54,13 +56,49 @@ func init(){
         rand.Seed(time.Now().Unix())
 }
 
+func checkFileExistance() {
+    Path := path.Join("solution" , "main_solution.cpp")
+    _, err := os.Stat(Path)
+    if os.IsNotExist(err) {
+            fmt.Printf("Main solution missed\n")
+            os.Exit(1)
+    }
+    _, err = os.Stat("generator.cpp")
+    if os.IsNotExist(err) {
+            fmt.Printf("Generator is missed\n")
+            os.Exit(1)
+    }
+    _, err = os.Stat("validator.cpp")
+    if os.IsNotExist(err) {
+            fmt.Printf("Validator is missed\n")
+            os.Exit(1)
+    }
+    _, err = os.Stat("checker.cpp")
+    if os.IsNotExist(err) {
+            whitediff = true
+    } else {
+            whitediff = false
+    }
+    _, err = os.Stat("data.json")
+    if os.IsNotExist(err) {
+            fmt.Printf("Json file is missed\n")
+            os.Exit(1)
+    }
+}
+
+func compilation() {
+        exec.Command("g++" , "generator.cpp" , "-o" , path.Join("testcase" , "generator"))
+
+}
+
 func main(){
-        var (
-                err error
-                file []string
-        )
-        file, err = OSReadDir("solution")
-        if err != nil{}
-        fmt.Printf("%s" , file)
+    //    var (
+      //        err error
+    //            file []string
+      //  )
+        initial()
+        checkFileExistance() //check if important files exist or not
+        //compilation()
+
 }
 

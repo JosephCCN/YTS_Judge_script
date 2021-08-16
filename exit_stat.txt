@@ -1,0 +1,2 @@
+0 Normal exit
+1 File not exist

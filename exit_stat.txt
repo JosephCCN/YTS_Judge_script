@@ -1,2 +1,3 @@
 0 Normal exit
 1 File not exist
+2 compilation problem

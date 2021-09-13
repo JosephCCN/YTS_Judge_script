@@ -54,6 +54,7 @@ func initial(){
             os.Exit(1)
         }
         rand.Seed(time.Now().Unix())
+
 }
 
 func checkFileExistance() {
@@ -84,21 +85,66 @@ func checkFileExistance() {
             fmt.Printf("Json file is missed\n")
             os.Exit(1)
     }
+    _, err = os.Stat("testcase")
+    if os.IsNotExist(err) {
+            err = os.Mkdir("testcase" , os.ModePerm)
+            if err != nil {
+                 os.Exit(1)
+            }
+    } else {
+           err = os.RemoveAll("testcase")
+           if err != nil {
+                   os.Exit(1)
+           }
+           err = os.Mkdir("testcase" , os.ModePerm)
+    }
 }
 
 func compilation() {
-        exec.Command("g++" , "generator.cpp" , "-o" , path.Join("testcase" , "generator"))
+        var (
+                err error
+                solutionFile []string
+        )
+        cmd := exec.Command("g++" , "generator.cpp" , "-o" , path.Join("testcase" , "generator"))
+        err = cmd.Run()
+        if err != nil {
+                fmt.Println("error while compiling generator")
+                os.Exit(2)
+        }
+        cmd = exec.Command("g++" , "validator.cpp" , "-o" , path.Join("testcase" , "validator"))
+        err = cmd.Run()
+        if err != nil {
+                fmt.Println("error while compiling validator")
+                os.Exit(2)
+        }
+        solutionFile, err = OSReadDir("solution")
+        if err != nil {
+                fmt.Println("error while scanning solution file")
+                os.Exit(1)
+        }
+        for pos, files := range solutionFile {
+                strFiles := string(files)
+                pos--
+                cmd = exec.Command("g++" , path.Join("solution" ,strFiles) , "-o" , path.Join("testcase" , strFiles[:len(strFiles)-4]))
+                err = cmd.Run()
+                if err != nil {
+                        os.Exit(2)
+                }
+        }
+}
+
+func genetestcase(){
+
 
 }
 
 func main(){
     //    var (
       //        err error
-    //            file []string
+          //            file []string
       //  )
         initial()
         checkFileExistance() //check if important files exist or not
-        //compilation()
-
+        compilation()
+        gentestcase()
 }
-
